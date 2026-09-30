@@ -1,6 +1,7 @@
 General Plan
 
 use c++ and cpp-tui (since we need networking I feel c++ will be the best option, not using ncurses since it doesn't have existing graph tools)
+cpp-tui can be found here https://github.com/jonoton/cpp-tui
 
 can't use netcat on a local dashboard since it needs to use an agent/api
 need unique user for agent/api
@@ -12,3 +13,6 @@ notify when user adjustable threshold is passed
 
 use tcp for networking using sys/socket
 see https://codezup.com/c-networking-guide/
+
+server program for sending system metrics
+client program for parsing system metrics into tui dashboard
