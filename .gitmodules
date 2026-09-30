@@ -1,0 +1,3 @@
+[submodule "cpp-tui"]
+	path = cpp-tui
+	url = https://github.com/jonoton/cpp-tui.git
