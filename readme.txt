@@ -12,7 +12,7 @@ monitor cpu, memory, disk usage, disk traffic, network traffic
 notify when user adjustable threshold is passed
 
 use tcp for networking using sys/socket
-see https://codezup.com/c-networking-guide/
+see https://www.geeksforgeeks.org/cpp/socket-programming-in-cpp/
 
 server program for sending system metrics
 client program for parsing system metrics into tui dashboard

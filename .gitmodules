@@ -1,3 +1,6 @@
 [submodule "cpp-tui"]
 	path = cpp-tui
 	url = https://github.com/jonoton/cpp-tui.git
+[submodule "cpp-sys-stats"]
+	path = cpp-sys-stats
+	url = https://github.com/improvess/cpp-linux-system-stats.git
