@@ -1,11 +1,12 @@
 #include "cppsys.hpp"
+#include <arpa/inet.h>
 #include <chrono>
 #include <fstream>
-#include <iostream>
 #include <netinet/in.h>
 #include <string>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <thread>
 #include <unistd.h>
 
 using namespace std;
@@ -24,7 +25,8 @@ public:
         // in order to get the rx and tx traffic we need the primary interface name
         ifstream route;
         route.open("/proc/net/route", std::ifstream::in);
-        getline(route, NULL);
+        // only need the second line so assign both to same variable to overwrite
+        getline(route, interface);
         getline(route, interface);
         // parse interface name from line
         interface = interface.substr(0, interface.find(" "));
@@ -51,12 +53,12 @@ public:
     int recieve()
     {
         uint8_t msg;
-        recv(cliSocket, msg, sizeof(msg), 0);
+        recv(cliSocket, &msg, sizeof(msg), 0);
         return msg;
     }
     void sendReply(uint32_t reply)
     {
-        send(cliSocket, reply, 32)
+        send(cliSocket, &reply, 32, 0);
     }
 
     // use message 1 as request for cpu
@@ -68,68 +70,75 @@ public:
     void reply(int msg)
     {
         switch (msg) {
-        case 1:
+        case 1: {
             // reply here with cpu usage
             // send as percentage by using an integer out of 100
-            get_system_usage_linux::CPU_stats t1 = read_cpu_data();
+            get_system_usage_linux::CPU_stats t1 = get_system_usage_linux::read_cpu_data();
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-            get_system_usage_linux::CPU_stats t2 = read_cpu_data();
+            get_system_usage_linux::CPU_stats t2 = get_system_usage_linux::read_cpu_data();
             sendReply(get_system_usage_linux::get_cpu_usage(t1, t2));
             break;
+        }
 
-        case 2:
+        case 2: {
             // reply here with memory usage
             // send as percentage by using an integer out of 100
-            auto memory_data = read_memory_data();
+            auto memory_data = get_system_usage_linux::read_memory_data();
             sendReply(memory_data.get_memory_usage());
             break;
+        }
 
-        case 3:
+        case 3: {
             // reply here with disk usage
             // send as percentage by using an integer out of 100
-            sendReply(get_system_usage_linux::get_disk_usage("/")) break;
+            sendReply(get_system_usage_linux::get_disk_usage("/"));
+            break;
+        }
 
-        case 4:
+        case 4: {
             // reply here with swap usage
-            auto memory_data = read_memory_data();
+            // send as percentage by using integer out of 100
+            auto memory_data = get_system_usage_linux::read_memory_data();
             sendReply(memory_data.get_swap_usage());
 
             break;
-
-        case 5:
+        }
+        case 5: {
             // reply here with rx network traffic
             // send network traffic as bps
             // since this is for unix only read the route file to find default network interface
 
             ifstream rx;
             // read total rx bytes sent twice to get bytes sent per second
-            tx.open("/sys/class/net/" + interface + "/statistics/rx_bytes");
+            rx.open("/sys/class/net/" + interface + "/statistics/rx_bytes");
             string temp;
             getline(rx, temp);
             int read1 = stoi(temp);
-            this_thread::sleepfor(chrono::milliseconds(1000));
-            tx.open("/sys/class/net/" + interface + "/statistics/rx_bytes");
+            this_thread::sleep_for(chrono::milliseconds(1000));
+            rx.open("/sys/class/net/" + interface + "/statistics/rx_bytes");
             getline(rx, temp);
             int read2 = stoi(temp);
             // send diff between 2 reads to get bps
             sendReply(read2 - read1);
             break;
-        case 6:
+        }
+        case 6: {
             ifstream tx;
             // read total tx bytes sent twice to get bytes sent per second
             tx.open("/sys/class/net/" + interface + "/statistics/tx_bytes");
             string temp;
             getline(tx, temp);
             int read1 = stoi(temp);
-            this_thread::sleepfor(chrono::milliseconds(1000));
+            this_thread::sleep_for(chrono::milliseconds(1000));
             tx.open("/sys/class/net/" + interface + "/statistics/tx_bytes");
             getline(tx, temp);
             int read2 = stoi(temp);
             // send diff between 2 reads to get bps
             sendReply(read2 - read1);
             break;
+        }
         }
     }
 };
