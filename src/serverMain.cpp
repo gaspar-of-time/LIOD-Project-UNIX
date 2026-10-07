@@ -3,11 +3,13 @@
 #include <fstream>
 #include <iostream>
 #include <netinet/in.h>
+#include <string>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
 
 using namespace std;
+// general idea for networking is to make a request then reply, assume reply is for latest request on client
 
 // to start the server
 class server {
@@ -19,6 +21,14 @@ private:
 public:
     server()
     {
+        // in order to get the rx and tx traffic we need the primary interface name
+        ifstream route;
+        route.open("/proc/net/route", std::ifstream::in);
+        getline(route, NULL);
+        getline(route, interface);
+        // parse interface name from line
+        interface = interface.substr(0, interface.find(" "));
+
         // create socket
         srvSocket = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -44,9 +54,9 @@ public:
         recv(cliSocket, msg, sizeof(msg), 0);
         return msg;
     }
-    void send(uint32_t reply)
+    void sendReply(uint32_t reply)
     {
-        // put sending business here
+        send(cliSocket, reply, 32)
     }
 
     // use message 1 as request for cpu
@@ -66,25 +76,25 @@ public:
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
             get_system_usage_linux::CPU_stats t2 = read_cpu_data();
-            send(get_system_usage_linux::get_cpu_usage(t1, t2));
+            sendReply(get_system_usage_linux::get_cpu_usage(t1, t2));
             break;
 
         case 2:
             // reply here with memory usage
             // send as percentage by using an integer out of 100
             auto memory_data = read_memory_data();
-            send(memory_data.get_memory_usage());
+            sendReply(memory_data.get_memory_usage());
             break;
 
         case 3:
             // reply here with disk usage
             // send as percentage by using an integer out of 100
-            send(get_system_usage_linux::get_disk_usage("/")) break;
+            sendReply(get_system_usage_linux::get_disk_usage("/")) break;
 
         case 4:
             // reply here with swap usage
             auto memory_data = read_memory_data();
-            send(memory_data.get_swap_usage());
+            sendReply(memory_data.get_swap_usage());
 
             break;
 
@@ -92,19 +102,34 @@ public:
             // reply here with rx network traffic
             // send network traffic as bps
             // since this is for unix only read the route file to find default network interface
-            ifstream route
-                route.open("/proc/net/route", std::ifstream::in);
-            getline(route, NULL);
-            string iface;
-            getline(route, iface);
-            // parse interface name from line
-            iface = iface.substr(0, iface.find(" "));
-            ifstream tx;
 
-            send();
-
+            ifstream rx;
+            // read total rx bytes sent twice to get bytes sent per second
+            tx.open("/sys/class/net/" + interface + "/statistics/rx_bytes");
+            string temp;
+            getline(rx, temp);
+            int read1 = stoi(temp);
+            this_thread::sleepfor(chrono::milliseconds(1000));
+            tx.open("/sys/class/net/" + interface + "/statistics/rx_bytes");
+            getline(rx, temp);
+            int read2 = stoi(temp);
+            // send diff between 2 reads to get bps
+            sendReply(read2 - read1);
             break;
         case 6:
+            ifstream tx;
+            // read total tx bytes sent twice to get bytes sent per second
+            tx.open("/sys/class/net/" + interface + "/statistics/tx_bytes");
+            string temp;
+            getline(tx, temp);
+            int read1 = stoi(temp);
+            this_thread::sleepfor(chrono::milliseconds(1000));
+            tx.open("/sys/class/net/" + interface + "/statistics/tx_bytes");
+            getline(tx, temp);
+            int read2 = stoi(temp);
+            // send diff between 2 reads to get bps
+            sendReply(read2 - read1);
+            break;
         }
     }
 };
