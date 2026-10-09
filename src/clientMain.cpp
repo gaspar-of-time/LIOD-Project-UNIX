@@ -36,7 +36,7 @@ public:
         serverAddress.sin_addr.s_addr = INADDR_ANY;
         // convert localhost into ip version
         // if (ip == "localhost") {
-        ip = "127.0.0.1";
+        // ip = "127.0.0.1";
         //}
         // convert ip string into machine readable address and store in the server's s_addr
         // inet_pton(AF_INET, ip.data(), &(serverAddress.sin_addr.s_addr));
