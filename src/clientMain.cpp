@@ -33,12 +33,13 @@ public:
         sockaddr_in serverAddress;
         serverAddress.sin_family = AF_INET;
         serverAddress.sin_port = htons(7778);
+        serverAddress.sin_addr.s_addr = INADDR_ANY;
         // convert localhost into ip version
-        if (ip == "localhost") {
-            ip = "127.0.0.1";
-        }
+        // if (ip == "localhost") {
+        ip = "127.0.0.1";
+        //}
         // convert ip string into machine readable address and store in the server's s_addr
-        inet_pton(AF_INET, ip.data(), &(serverAddress.sin_addr.s_addr));
+        // inet_pton(AF_INET, ip.data(), &(serverAddress.sin_addr.s_addr));
 
         // connect to the server
         srvSocket = connect(cliSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress));
