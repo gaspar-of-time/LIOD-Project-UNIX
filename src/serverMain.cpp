@@ -40,8 +40,13 @@ public:
         serverAddress.sin_family = AF_INET;
         serverAddress.sin_port = htons(7777);
         serverAddress.sin_addr.s_addr = INADDR_ANY;
+
+        // bind socket
+        bind(srvSocket, (struct sockaddr*)&serverAddress,
+            sizeof(serverAddress));
+
         // listen for connection on socket
-        listen(srvSocket, 1);
+        listen(srvSocket, 5);
 
         // accept connection
         cliSocket = accept(srvSocket, nullptr, nullptr);
@@ -152,4 +157,6 @@ int main()
 {
     cout << "started" << endl;
     server srv;
+    while (1 == 1) {
+    }
 }

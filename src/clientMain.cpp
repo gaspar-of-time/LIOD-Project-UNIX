@@ -1,8 +1,11 @@
 #include "cpptui.hpp"
 #include <arpa/inet.h>
+#include <chrono>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <thread>
+#include <unistd.h>
 using namespace std;
 
 class Client {
@@ -27,22 +30,22 @@ public:
     Client(string ip)
     {
         // create socket
-        int cliSocket = socket(AF_INET, SOCK_STREAM, 0);
+        cliSocket = socket(AF_INET, SOCK_STREAM, 0);
 
         // specify address
         sockaddr_in serverAddress;
         serverAddress.sin_family = AF_INET;
-        serverAddress.sin_port = htons(7778);
-        serverAddress.sin_addr.s_addr = INADDR_ANY;
+        serverAddress.sin_port = htons(7777);
         // convert localhost into ip version
-        // if (ip == "localhost") {
-        // ip = "127.0.0.1";
-        //}
+        if (ip == "localhost") {
+            ip = "127.0.0.1";
+        }
         // convert ip string into machine readable address and store in the server's s_addr
-        // inet_pton(AF_INET, ip.data(), &(serverAddress.sin_addr.s_addr));
+        inet_pton(AF_INET, ip.data(), &(serverAddress.sin_addr.s_addr));
 
         // connect to the server
-        srvSocket = connect(cliSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress));
+        connect(cliSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress));
+        cout << "connected" << endl;
     }
     ~Client()
     {
@@ -55,6 +58,7 @@ public:
         // the reply after the request is assumed to be the response, this needs to be tested.
         //
         sendMsg(msg);
+        this_thread::sleep_for(std::chrono::milliseconds(1050));
         return recieve();
     }
 };
