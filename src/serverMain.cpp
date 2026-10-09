@@ -2,6 +2,7 @@
 #include <arpa/inet.h>
 #include <chrono>
 #include <fstream>
+#include <iostream>
 #include <netinet/in.h>
 #include <string>
 #include <sys/socket.h>
@@ -40,24 +41,28 @@ public:
         serverAddress.sin_port = htons(7777);
         serverAddress.sin_addr.s_addr = INADDR_ANY;
         // listen for connection on socket
-        listen(srvSocket, 5);
+        listen(srvSocket, 1);
 
         // accept connection
         cliSocket = accept(srvSocket, nullptr, nullptr);
+        std::cout << "connection recieved" << endl;
     };
     ~server()
     {
         // close socket
         close(srvSocket);
+        std::cout << "closing socket" << endl;
     }
     int recieve()
     {
         uint8_t msg;
         recv(cliSocket, &msg, sizeof(msg), 0);
+        std::cout << "recieving " << msg << endl;
         return msg;
     }
     void sendReply(uint32_t reply)
     {
+        std::cout << "sending " << reply << endl;
         send(cliSocket, &reply, 32, 0);
     }
 
@@ -145,5 +150,6 @@ public:
 
 int main()
 {
+    cout << "started" << endl;
     server srv;
 }
