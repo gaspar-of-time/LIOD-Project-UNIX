@@ -1,90 +1,50 @@
 #include "cpptui.hpp"
-#include <arpa/inet.h>
-#include <chrono>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <thread>
+#include "httplib.h"
+#include <iostream>
+#include <string>
 #include <unistd.h>
+
 using namespace std;
-
-class Client {
-private:
-    int srvSocket;
-    int cliSocket;
-    int recieve()
-    {
-        // make var to store the response
-        uint32_t msg;
-        // recieve the response and store it in the var
-        recv(srvSocket, &msg, sizeof(msg), 0);
-        return msg;
-    }
-    void sendMsg(uint8_t out)
-    {
-        // sending message using out
-        send(cliSocket, &out, sizeof(out), 0);
-    }
-
-public:
-    Client(string ip)
-    {
-        // create socket
-        cliSocket = socket(AF_INET, SOCK_STREAM, 0);
-
-        // specify address
-        sockaddr_in serverAddress;
-        serverAddress.sin_family = AF_INET;
-        serverAddress.sin_port = htons(7777);
-        // convert localhost into ip version
-        if (ip == "localhost") {
-            ip = "127.0.0.1";
-        }
-        // convert ip string into machine readable address and store in the server's s_addr
-        inet_pton(AF_INET, ip.data(), &(serverAddress.sin_addr.s_addr));
-
-        // connect to the server
-        connect(cliSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress));
-        cout << "connected" << endl;
-    }
-    ~Client()
-    {
-        // close socket
-        close(cliSocket);
-    }
-
-    int request(uint8_t msg)
-    {
-        // the reply after the request is assumed to be the response, this needs to be tested.
-        //
-        sendMsg(msg);
-        this_thread::sleep_for(std::chrono::milliseconds(1050));
-        return recieve();
-    }
+struct stats {
+    float cpuPer;
+    unsigned long memoryUsed;
+    unsigned long memoryTotal;
+    float memoryPer;
+    float swapPer;
+    float storagePer;
+    unsigned long rxBps;
+    unsigned long txBps;
 };
+stats getStats(string address)
+{
+    httplib::Client cli(address);
+    float cpuPer = 100.0f * stof(cli.Get("/cpu")->body);
+    unsigned long memoryUsed = stoll(cli.Get("/memoryUsed")->body);
+    unsigned long memoryTotal = stoll(cli.Get("/memoryTotal")->body);
+    float memoryPer = (100.0f * memoryUsed) / memoryTotal;
+    float swapPer = stof(cli.Get("/swap")->body);
+    float storagePer = stof(cli.Get("/storage")->body);
+    cout << cli.Get("/rx")->body << "temp" << endl;
+    // currently tx and rx don't work, set to 0 for testing purposes
+    // unsigned long rxBps = stoll(cli.Get("/rx")->body);
+    // unsigned long txBps = stoll(cli.Get("/tx")->body);
+    int txBps = 0;
+    int rxBps = 0;
+    return { cpuPer, memoryUsed, memoryTotal, memoryPer, swapPer, storagePer, rxBps, txBps };
+}
+
 int main()
 {
     // this is all test code
-    string ip;
-    std::cout << "Insert Server IP Address:" << std::endl;
-    std::cin >> ip;
-    Client client(ip);
-    // use message 1 as request for cpu%
-    // message 2 as request for memory%
-    // message 3 disk usage%
-    // message 4 swap usage%
-    // message 5 network traffic rx bits/s
-    // message 6 network traffic tx bits/s
-    cout << "sending \%cpu request" << endl;
-    cout << client.request(1) << endl;
-    cout << "sending \%mem request" << endl;
-    cout << client.request(2) << endl;
-    cout << "sending \%disk request" << endl;
-    cout << client.request(3) << endl;
-    cout << "sending \%swap request" << endl;
-    cout << client.request(4) << endl;
-    cout << "sending rx request" << endl;
-    cout << client.request(5) << endl;
-    cout << "sending tx request" << endl;
-    cout << client.request(6) << endl;
+    string ip = "localhost:7777";
+    // cin >> ip;
+    stats stats = getStats(ip);
+    cout << "CPU%: " << stats.cpuPer << endl;
+    cout << "Memory Used (Kb): " << stats.memoryUsed << endl;
+    cout << "Memory Total (Kb): " << stats.memoryTotal << endl;
+    cout << "Memory%: " << stats.memoryPer << endl;
+    cout << "Swap%: " << stats.swapPer << endl;
+    cout << "Storage%: " << stats.storagePer << endl;
+    cout << "RX (bps): " << stats.rxBps << endl;
+    cout << "TX (bps): " << stats.txBps << endl;
 }
