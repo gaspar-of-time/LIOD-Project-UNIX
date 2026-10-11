@@ -11,8 +11,12 @@ update every 5 seconds? if so then use queue or array or vector of length 120
 monitor cpu, memory, disk usage, disk traffic, network traffic
 notify when user adjustable threshold is passed
 
-use tcp for networking using sys/socket
-see https://www.geeksforgeeks.org/cpp/socket-programming-in-cpp/
+using http api for sending and recieving data
 
 server program for sending system metrics
 client program for parsing system metrics into tui dashboard
+
+need to support 3 servers
+maybe overlay each graph over and color code them if possible?
+
+use cron job to check api status every 5 minutes
