@@ -24,12 +24,8 @@ stats getStats(string address)
     float memoryPer = (100.0f * memoryUsed) / memoryTotal;
     float swapPer = stof(cli.Get("/swap")->body);
     float storagePer = stof(cli.Get("/storage")->body);
-    cout << cli.Get("/rx")->body << "temp" << endl;
-    // currently tx and rx don't work, set to 0 for testing purposes
-    // unsigned long rxBps = stoll(cli.Get("/rx")->body);
-    // unsigned long txBps = stoll(cli.Get("/tx")->body);
-    int txBps = 0;
-    int rxBps = 0;
+    unsigned long rxBps = stoll(cli.Get("/rx")->body);
+    unsigned long txBps = stoll(cli.Get("/tx")->body);
     return { cpuPer, memoryUsed, memoryTotal, memoryPer, swapPer, storagePer, rxBps, txBps };
 }
 
