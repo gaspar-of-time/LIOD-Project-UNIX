@@ -1,7 +1,6 @@
 #include "cppsys.hpp"
 #include "httplib.h"
 #include <chrono>
-#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -41,7 +40,7 @@ int getTx()
     tx.close();
     tx.open(txDir);
     getline(tx, temp);
-    unsigned long long read2 = stoll(temp);
+    unsigned long long read2 = stoull(temp);
     cout << "read2" << read2 << endl;
     // send diff between 2 reads to get bps
     return read2 - read1;
@@ -55,7 +54,8 @@ int getRx()
     rx.open(rxDir);
     string temp;
     getline(rx, temp);
-    unsigned long long read1 = stoll(temp);
+    cout << temp << endl;
+    unsigned long long read1 = stoull(temp);
     this_thread::sleep_for(std::chrono::milliseconds(1000));
     rx.close();
     rx.open(rxDir);
@@ -66,21 +66,21 @@ int getRx()
     cout << read1 << "read1" << endl;
     return read2 - read1;
 }
-float getSwap()
+double getSwap()
 {
     // use library to get swap from linux drivers
     auto memory_data = get_system_usage_linux::read_memory_data();
     cout << "answering swap usage call" << endl;
-    return (100.0f * memory_data.get_swap_usage());
+    return (100.0 * memory_data.get_swap_usage());
 }
 
-float getStor()
+double getStor()
 {
     // same as above
     cout << "answering storage usage call" << endl;
-    return (100.0f * get_system_usage_linux::get_disk_usage("/"));
+    return (100.0 * get_system_usage_linux::get_disk_usage("/"));
 }
-float getCpu()
+double getCpu()
 {
     // you can't get the cpu usage as a instantaneous percentage, it needs to be estimated since the value
     // is how long the cpu is taking
