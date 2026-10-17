@@ -34,14 +34,12 @@ int getTx()
     getline(tx, temp);
     // using long longs because these numbers can get too long for integers and these should be large enough
     unsigned long long read1 = stoll(temp);
-    cout << "read1" << read1 << endl;
     this_thread::sleep_for(chrono::milliseconds(1000));
     // close the file to read the updated value
     tx.close();
     tx.open(txDir);
     getline(tx, temp);
     unsigned long long read2 = stoull(temp);
-    cout << "read2" << read2 << endl;
     // send diff between 2 reads to get bps
     return read2 - read1;
 }
@@ -54,7 +52,6 @@ int getRx()
     rx.open(rxDir);
     string temp;
     getline(rx, temp);
-    cout << temp << endl;
     unsigned long long read1 = stoull(temp);
     this_thread::sleep_for(std::chrono::milliseconds(1000));
     rx.close();
@@ -62,8 +59,6 @@ int getRx()
     getline(rx, temp);
     unsigned long long read2 = stoll(temp);
     // send diff between 2 reads to get bps
-    cout << read2 << "read2" << endl;
-    cout << read1 << "read1" << endl;
     return read2 - read1;
 }
 double getSwap()
@@ -107,8 +102,9 @@ int getUsedMem()
 
 int main()
 {
+    // create api server
     httplib::Server srv;
-
+    // make api responses for all metrics
     srv.Get("/cpu", [](const httplib::Request&, httplib::Response& res) { res.set_content(to_string(getCpu()), "text/plain"); });
     srv.Get("/memoryTotal", [](const httplib::Request&, httplib::Response& res) { res.set_content(to_string(getTotalMem()), "text/plain"); });
     srv.Get("/memoryUsed", [](const httplib::Request&, httplib::Response& res) { res.set_content(to_string(getUsedMem()), "text/plain"); });
@@ -116,6 +112,8 @@ int main()
     srv.Get("/storage", [](const httplib::Request&, httplib::Response& res) { res.set_content(to_string(getStor()), "text/plain"); });
     srv.Get("/rx", [](const httplib::Request&, httplib::Response& res) { res.set_content(to_string(getRx()), "text/plain"); });
     srv.Get("/tx", [](const httplib::Request&, httplib::Response& res) { res.set_content(to_string(getTx()), "text/plain"); });
+
+    // make api response to check for alive without running a function for metrics
     srv.Get("/", [](const httplib::Request&, httplib::Response& res) { res.set_content("alive", "text/plain"); });
 
     cout << "listening for api calls" << endl;
