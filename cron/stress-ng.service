@@ -1,0 +1,14 @@
+[Unit]
+Description=stress-ng loading
+After=network.target
+
+[Service]
+Type=notify
+NotifyAccess=all
+ExecStart=/stress_server.sh
+Restart=always
+RestartSec=3
+WatchdogSec=60
+
+[Install]
+WantedBy=multi-user.target
