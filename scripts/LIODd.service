@@ -4,9 +4,9 @@ After=network.target
 
 [Service]
 Type=simple
-User=agentUser
-Group=agentUser
-ExecStart=./../serverMain
+User=LIOD
+Group=LIOD
+ExecStart=/opt/LIOD/bin/LIODd
 Restart=always
 RestartSec=3
 
