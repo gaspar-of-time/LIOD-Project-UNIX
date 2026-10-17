@@ -111,6 +111,7 @@ float randfloat()
 
 int main()
 {
+    srand(7);
     cout << "How many servers will you be monitoring?" << endl;
     int numberOfAddr;
     cin >> numberOfAddr;
@@ -258,8 +259,8 @@ int main()
     statsboard->add_item(memBlock, 0, 1);
     statsboard->add_item(swapBlock, 1, 1);
     statsboard->add_item(storageBarBorder, 1, 0);
-    statsboard->add_item(rxBlock, 2, 0);
-    statsboard->add_item(txBlock, 2, 1);
+    statsboard->add_item(rxBorder, 2, 0);
+    statsboard->add_item(txBorder, 2, 1);
     app.add_timer(updateInterval, [&]() {
         // clear charts
         cpuChart->series.clear();
