@@ -116,6 +116,7 @@ int main()
     srv.Get("/storage", [](const httplib::Request&, httplib::Response& res) { res.set_content(to_string(getStor()), "text/plain"); });
     srv.Get("/rx", [](const httplib::Request&, httplib::Response& res) { res.set_content(to_string(getRx()), "text/plain"); });
     srv.Get("/tx", [](const httplib::Request&, httplib::Response& res) { res.set_content(to_string(getTx()), "text/plain"); });
+    srv.Get("/", [](const httplib::Request&, httplib::Response& res) { res.set_content("alive", "text/plain"); });
 
     cout << "listening for api calls" << endl;
     srv.listen("0.0.0.0", 7777);
