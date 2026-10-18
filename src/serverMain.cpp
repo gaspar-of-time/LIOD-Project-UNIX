@@ -66,7 +66,11 @@ double getSwap()
     // use library to get swap from linux drivers
     auto memory_data = get_system_usage_linux::read_memory_data();
     cout << "answering swap usage call" << endl;
-    return (100.0 * memory_data.get_swap_usage());
+    double mem = memory_data.get_swap_usage();
+    if (isnan(mem)) {
+        return 0;
+    }
+    return (100.0 * mem);
 }
 
 double getStor()
@@ -85,6 +89,7 @@ double getCpu()
 
     get_system_usage_linux::CPU_stats t2 = get_system_usage_linux::read_cpu_data();
     cout << "answering cpu usage call" << endl;
+    cout << "returning " + to_string(get_system_usage_linux::get_cpu_usage(t1, t2));
     return get_system_usage_linux::get_cpu_usage(t1, t2);
 }
 int getTotalMem()

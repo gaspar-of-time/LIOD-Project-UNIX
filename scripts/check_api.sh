@@ -14,7 +14,7 @@ set -e
 ts() {
   date '+%f %T';
 }
-if [-ne "$FIFO"]; then
+if [ ! -e "$FIFO" ]; then
 #make it if it doesn't
   mkfifo $FIFO
 fi
