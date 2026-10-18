@@ -24,6 +24,7 @@ cp ./check_api.sh /opt/LIOD/scripts/
 cp ./log_api.sh /opt/LIOD/scripts/
 cp ./stress_server.service /opt/LIOD/scripts/
 cp ./LIODd.service /opt/LIOD/scripts/
+chmod +x --recursive /opt/LIOD/
 echo "Done.\n"
 # make sure the files are also owned
 chown -R LIOD:LIOD /opt/LIOD

@@ -3,9 +3,8 @@ Description=stress-ng loading
 After=network.target
 
 [Service]
-Type=notify
-NotifyAccess=all
-ExecStart=/opt/LIOD/stress_server.sh
+Type=simple
+ExecStart=/opt/LIOD/scripts/stress_server.sh
 Restart=always
 RestartSec=3
 WatchdogSec=60
