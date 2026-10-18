@@ -13,6 +13,7 @@ do
     if read line <$FIFO; then
         if [[ "$line" != '' ]]; then
         echo $line >> "$LOG"
+        exit
         fi
     fi
 done
