@@ -36,7 +36,7 @@ echo "Done.\n"
 
 echo "Adding cron job to root crontab"
 #check if there's a cron file for root
-if [-ne "/var/spool/cron/root"]; then
+if [ ! -e "/var/spool/cron/root" ]; then
 #make it if it doesn't
   touch "/var/spool/cron/root"
 fi
