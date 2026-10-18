@@ -35,10 +35,5 @@ systemctl enable --now /opt/LIOD/scripts/stress_server.service
 echo "Done.\n"
 
 echo "Adding cron job to root crontab"
-#check if there's a cron file for root
-if [ ! -e "/var/spool/cron/root" ]; then
-#make it if it doesn't
-  touch "/var/spool/cron/root"
-fi
-echo "*/5 * * * * /opt/LIOD/scripts/check_api.sh & /opt/LIOD/scripts/log_api.sh" >> "/var/spool/cron/root"
+echo "*/5 * * * * /opt/LIOD/scripts/check_api.sh & /opt/LIOD/scripts/log_api.sh" >> "/etc/crontab"
 echo "Done.\n"

@@ -4,4 +4,4 @@ if [ ! -d "/tmp/stress-ng" ]; then
   mkdir "/tmp/stress-ng"
 fi
 
-stress-ng --cpu-load 70 --vm 5 --vm-bytes 10% --hdd 5 --hdd-bytes 10% --temp-path /tmp/stress-ng
+stress-ng --cpu-load 70 --vm 1 --vm-bytes 50% --hdd 1 --hdd-bytes 50% --temp-path /tmp/stress-ng
