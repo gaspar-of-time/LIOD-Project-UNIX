@@ -33,7 +33,7 @@ int getTx()
     string temp;
     getline(tx, temp);
     // using long longs because these numbers can get too long for integers and these should be large enough
-    unsigned long long read1 = stoll(temp);
+    unsigned long long read1 = stoull(temp);
     this_thread::sleep_for(chrono::milliseconds(1000));
     // close the file to read the updated value
     tx.close();
