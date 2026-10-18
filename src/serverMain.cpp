@@ -89,7 +89,6 @@ double getCpu()
 
     get_system_usage_linux::CPU_stats t2 = get_system_usage_linux::read_cpu_data();
     cout << "answering cpu usage call" << endl;
-    cout << "returning " + to_string(get_system_usage_linux::get_cpu_usage(t1, t2));
     return get_system_usage_linux::get_cpu_usage(t1, t2);
 }
 int getTotalMem()
