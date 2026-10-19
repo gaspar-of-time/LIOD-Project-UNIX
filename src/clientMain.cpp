@@ -204,7 +204,7 @@ int main(int argc, char* argv[])
 
     // make header that contains usage information and the name of the program
     auto header = make_shared<cpptui::Label>("Linux Infrastructure Observability Dashboard | Updating every " + to_string(updateInterval / 1000) + " second(s) | Press q to exit. | Press e for settings");
-    header->fixed_height = 2;
+    header->fixed_height = 1;
     header->underline = true;
     root->add(header);
 
@@ -306,20 +306,23 @@ int main(int argc, char* argv[])
     txBorder->set_title("Transmitted Bytes (B/s)", cpptui::Alignment::Left);
 
     // make a block to go within the border that will store the text labels
-    auto rxBlock = make_shared<cpptui::Vertical>();
-    auto txBlock = make_shared<cpptui::Vertical>();
+    auto rxBlock = make_shared<cpptui::ScrollableVertical>();
+    auto txBlock = make_shared<cpptui::ScrollableVertical>();
 
     // add the rx and tx blocks to their borders
     rxBorder->add(rxBlock);
     txBorder->add(txBlock);
+    txBlock->min_height = 1;
+    rxBlock->min_height = 1;
 
     // create the border for the storage bars and set the title
     auto storageBarBorder = make_shared<cpptui::Border>(cpptui::BorderStyle::Double);
     storageBarBorder->set_title("Storage Usage (%)", cpptui::Alignment::Left);
 
     // define the section for storage percentage bars and add it to the border
-    auto storageBarBlock = make_shared<cpptui::Vertical>();
+    auto storageBarBlock = make_shared<cpptui::ScrollableVertical>();
     storageBarBorder->add(storageBarBlock);
+    storageBarBlock->min_height = 2;
 
     // for each ip add the storage percentage bars, and rx and tx labels
     for (int i = 0; i < numberOfAddr; i++) {
@@ -436,7 +439,7 @@ int main(int argc, char* argv[])
 
     // create notification for threshold being passed
     auto alert = make_shared<cpptui::Notification>();
-    alert->position = cpptui::Notification::Position::TopRight;
+    alert->position = cpptui::Notification::Position::BottomRight;
     alert->max_visible = 5;
     alert->height = 0;
     alert->max_height = 0;
