@@ -203,7 +203,7 @@ int main(int argc, char* argv[])
     auto root = make_shared<cpptui::Vertical>();
 
     // make header that contains usage information and the name of the program
-    auto header = make_shared<cpptui::Label>("Linux Infrastructure Observability Dashboard | Updating every " + to_string(updateInterval / 1000) + " second(s) | Press q to exit. | Press e for settings");
+    auto header = make_shared<cpptui::Label>("Linux Infrastructure Observability Dashboard | Updating every " + to_string(updateInterval / 1000) + " second(s) (probably) | Press q to exit. | Press e for settings");
     header->fixed_height = 1;
     header->underline = true;
     root->add(header);
@@ -365,12 +365,12 @@ int main(int argc, char* argv[])
     // make settings for configuring warning thresholds
     auto settings = make_shared<cpptui::Dialog>(&app, cpptui::BorderStyle::Double);
     // height and width need to be defined to display properly
-    settings->width = 50;
-    settings->height = 10;
-    settings->fixed_height = 10;
-    settings->fixed_width = 50;
+    settings->width = 60;
+    settings->height = 12;
+    settings->fixed_height = 12;
+    settings->fixed_width = 60;
     settings->modal = true;
-    settings->set_title("Server Warning Thresholds", cpptui::Alignment::Left);
+    settings->set_title("Settings:", cpptui::Alignment::Left);
 
     // make a container to hold each element of the settings
     auto settingsContainer = make_shared<cpptui::Vertical>();
@@ -420,7 +420,13 @@ int main(int argc, char* argv[])
     // store the value of the slider in a variable when it changes and update the text to reflect the new value
     storageInput->on_change = [storageInputLabel](int v) { storageWarn = v; storageInputLabel->set_text("Storage Warning Threshold ("+to_string(v)+"%):"); };
 
+    // add toggle switch to hide legends
+    auto toggleLegends = make_shared<cpptui::ToggleSwitch>("Enable Legends");
+    toggleLegends->is_on = true;
+    toggleLegends->on_change = [cpuChart, memChart, swapChart](bool v) {cpuChart->show_legend = v; memChart->show_legend = v; swapChart->show_legend = v; };
+
     // add the sliders and labels to the settings container
+    settingsContainer->add(toggleLegends);
     settingsContainer->add(cpuInputLabel);
     settingsContainer->add(cpuInput);
     settingsContainer->add(memInputLabel);
