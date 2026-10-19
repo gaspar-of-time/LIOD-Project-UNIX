@@ -209,8 +209,16 @@ int main(int argc, char* argv[])
     root->add(header);
 
     // make grid for all graphs to go into
-    auto statsboard = make_shared<cpptui::Grid>();
-    root->add(statsboard);
+    // auto statsboard = make_shared<cpptui::Grid>();
+    // root->add(statsboard);
+    auto statsUpper = make_shared<cpptui::Horizontal>();
+    auto statsLower = make_shared<cpptui::Horizontal>();
+    auto statsAll = make_shared<cpptui::SplitPane>();
+    statsAll->set_panes(statsUpper, statsLower);
+    statsAll->ratio = .7;
+    statsAll->vertical = true;
+    statsAll->max_height = 0;
+    root->add(statsAll);
 
     // make border for cpu chart for readability and labeling
     auto cpuBlock = make_shared<cpptui::Border>(cpptui::BorderStyle::Double);
@@ -430,22 +438,28 @@ int main(int argc, char* argv[])
     app.register_key('e', [settings] { if(!settings->is_open){settings->open();}else{settings->close();} });
 
     // add charts and headers to stats board via their housings
-    statsboard->add_item(cpuBlock, 0, 0);
-    statsboard->add_item(memBlock, 0, 1);
-    statsboard->add_item(swapBlock, 1, 1);
-    statsboard->add_item(storageBarBorder, 1, 0);
-    statsboard->add_item(rxBorder, 2, 0);
-    statsboard->add_item(txBorder, 2, 1);
+    // statsboard->add_item(cpuBlock, 0, 0);
+    statsUpper->add(cpuBlock);
+    // statsboard->add_item(memBlock, 0, 1);
+    statsUpper->add(memBlock);
+    // statsboard->add_item(swapBlock, 0, 2);
+    statsUpper->add(swapBlock);
+    // statsboard->add_item(storageBarBorder, 1, 0);
+    statsLower->add(storageBarBorder);
+    // statsboard->add_item(rxBorder, 1, 1);
+    statsLower->add(rxBorder);
+    // statsboard->add_item(txBorder, 1, 2);
+    statsLower->add(txBorder);
 
     // create notification for threshold being passed
     auto alert = make_shared<cpptui::Notification>();
     alert->position = cpptui::Notification::Position::BottomRight;
     alert->max_visible = 5;
-    alert->height = 0;
-    alert->max_height = 0;
+    alert->min_height = 0;
+    alert->max_height = 1;
 
-    // add the notification component to the board
-    statsboard->add(alert);
+    // add the notification component to the root
+    root->add(alert);
 
     // this timer runs at a regular interval to update the ui data using the data fetched by the worker thread
     app.add_timer(updateInterval, [&]() {
