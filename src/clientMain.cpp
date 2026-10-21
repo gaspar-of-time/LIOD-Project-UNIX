@@ -309,7 +309,7 @@ int main(int argc, char* argv[])
 
     // define the borders for the transmitted and recived bytes, and set their titles
     auto rxBorder = make_shared<cpptui::Border>(cpptui::BorderStyle::Double);
-    rxBorder->set_title("Recieved Bytes (B/s)", cpptui::Alignment::Left);
+    rxBorder->set_title("Received Bytes (B/s)", cpptui::Alignment::Left);
     auto txBorder = make_shared<cpptui::Border>(cpptui::BorderStyle::Double);
     txBorder->set_title("Transmitted Bytes (B/s)", cpptui::Alignment::Left);
 
