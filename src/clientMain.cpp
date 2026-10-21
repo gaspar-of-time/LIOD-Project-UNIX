@@ -157,7 +157,7 @@ int main(int argc, char* argv[])
     for (int i = 0; i < numberOfAddr; i++) {
         // make sure each address exists before continuing to execute
         if (!tryStats(argv[i + 1])) {
-            cout << "Invalid Arguement for Server " + to_string(i + 1) << endl
+            cout << "Invalid Argument for Server " + to_string(i + 1) << endl
                  << "Make sure you typed in the ip and port correctly and that the server is running." << endl;
             return 0;
         }
