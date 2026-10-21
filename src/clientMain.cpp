@@ -81,34 +81,32 @@ bool tryStats(string address)
 
 // function from Adrian's version of ui, modified to support infinitely many ips
 // recieves and stores the stats for each ip address provided on start
-void fetch_worker(vector<string> _ips)
+void fetch_worker(string ip, int i)
 {
     // constantly loops to get the stats from the server every specified interval
     while (true) {
+        // since each server gets it's own thread now, it no longer needs to loop through each index
+        //  using try to handle disconnects by recieving the throw from getStats
+        try {
+            stats latest = getStats(ip);
+            // record the latest to the end and remove the beginning to keep a consistent length
+            cpuUsage[i].push_back(latest.cpuPer);
+            cpuUsage[i].erase(cpuUsage[i].begin());
+            memoryUsage[i].push_back(latest.memoryPer);
+            memoryUsage[i].erase(memoryUsage[i].begin());
+            swapUsage[i].push_back(latest.swapPer);
+            swapUsage[i].erase(swapUsage[i].begin());
 
-        // loop through each ip address
-        for (int i = 0; i < _ips.size(); i++) {
-            // using try to handle disconnects by recieving the throw from getStats
-            try {
-                stats latest = getStats(_ips[i]);
-                // record the latest to the end and remove the beginning to keep a consistent length
-                cpuUsage[i].push_back(latest.cpuPer);
-                cpuUsage[i].erase(cpuUsage[i].begin());
-                memoryUsage[i].push_back(latest.memoryPer);
-                memoryUsage[i].erase(memoryUsage[i].begin());
-                swapUsage[i].push_back(latest.swapPer);
-                swapUsage[i].erase(swapUsage[i].begin());
-
-                // these are just latest values since they don't go to a graph
-                memoryUsed[i] = latest.memoryUsed;
-                memoryMax[i] = latest.memoryTotal;
-                storageUsage[i] = latest.storagePer;
-                txBps[i] = latest.txBps;
-                rxBps[i] = latest.rxBps;
-            } catch (...) {
-                // Silently handle server disconnects during the background poll
-            }
+            // these are just latest values since they don't go to a graph
+            memoryUsed[i] = latest.memoryUsed;
+            memoryMax[i] = latest.memoryTotal;
+            storageUsage[i] = latest.storagePer;
+            txBps[i] = latest.txBps;
+            rxBps[i] = latest.rxBps;
+        } catch (...) {
+            // Silently handle server disconnects during the background poll
         }
+        // }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(updateInterval));
     }
@@ -188,10 +186,12 @@ int main(int argc, char* argv[])
         serverColors.push_back(cpptui::Color::hsv_to_rgb(randfloat(), randfloat(), 1));
     }
 
-    // make worker thread for getting data
-    // uses a single thread since that seems to work fine in testing
-    std::thread worker(fetch_worker, ips);
-    worker.detach();
+    // make worker threads for getting data
+    std::thread workerArray[numberOfAddr];
+    for (int i = 0; i < numberOfAddr; i++) {
+        workerArray[i] = std::thread(fetch_worker, ips[i], i);
+        workerArray[i].detach();
+    }
 
     // create base ui for the program
     cpptui::App app;
